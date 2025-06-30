@@ -1,0 +1,33 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway-fiap-service
+  cloud:
+    gateway:
+      routes:
+        - id: auth_service_route
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - StripPrefix=1
+
+        # --- Adicione aqui outras rotas para seus microsservi�os ---
+        # - id: assessment_management_service_route
+        #   uri: http://localhost:8082
+        #   predicates:
+        #     - Path=/api/assessments/**
+        #   filters:
+        #     - StripPrefix=1
+
+jwt:
+  secret: 4Z^XrroxR@dWxqf$mTTKwW$!@#qGr4P
+
+logging:
+  level:
+    root: INFO
+    com.geradortestes.apigateway: DEBUG
+    org.springframework.cloud.gateway: DEBUG
+    io.jsonwebtoken: INFO
