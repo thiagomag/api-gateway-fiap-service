@@ -46,32 +46,38 @@ public class JwtAuthenticationFilter implements WebFilter {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
 
-        // 1. Verificar se é uma rota pública (não precisa de autenticação)
-        if (isPublicRoute(path)) {
-            log.debug("Accessing public route: {}", path);
+        // 1. Verificar se a requisição já foi autenticada por API Key
+        Boolean authenticatedByApiKey = exchange.getAttribute(ApiAuthenticationFilter.API_KEY_AUTHENTICATED_ATTRIBUTE);
+        if (Boolean.TRUE.equals(authenticatedByApiKey)) {
+            log.debug("Requisição para {} já autenticada por API Key. Pulando validação JWT.", path);
             return chain.filter(exchange);
         }
 
-        // 2. Extrair o token do cabeçalho Authorization
+        // 2. Verificar se a rota é pública (não requer JWT)
+        if (isPublicRoute(path)) {
+            log.debug("Rota pública: {}. Pulando validação JWT.", path);
+            return chain.filter(exchange);
+        }
+
+        // 3. Se não foi autenticada por API Key e não é pública, tenta autenticar com JWT
         String authorizationHeader = request.getHeaders().getFirst(AUTHORIZATION_HEADER);
 
         if (authorizationHeader == null || !authorizationHeader.startsWith(BEARER_PREFIX)) {
-            log.warn("Unauthorized access attempt to protected route '{}': Missing or malformed Bearer token.", path);
-            return onError(exchange, "Authorization header is missing or malformed (expected 'Bearer <token>').", HttpStatus.UNAUTHORIZED);
+            log.warn("Token JWT ausente ou mal formatado para rota protegida: {}", path);
+            return onError(exchange, "JWT Token is missing or malformed.", HttpStatus.UNAUTHORIZED);
         }
 
         String token = authorizationHeader.substring(BEARER_PREFIX_LENGTH);
 
-        // 3. Parsear e Validar o JWT
+        // 4. Parsear e Validar o JWT
         try {
-            Jws<Claims> jwsClaims = Jwts.parser()
+            Claims claims = Jwts.parser()
                     .verifyWith(jwtSecretKey) // Use verifyWith para a chave secreta
                     .build() // Constrói o parser
-                    .parseSignedClaims(token); // Analisa os claims do token assinado
+                    .parseSignedClaims(token)
+                    .getPayload(); // Analisa os claims do token assinado
 
-            Claims claims = jwsClaims.getPayload();
-
-            // 4. Extrair informações do token e adicionar aos headers da requisição interna
+            // 5. Extrair informações do token e adicionar aos headers da requisição interna
             String userId = claims.getSubject(); // O 'sub' claim é geralmente o ID do usuário
             List<String> roles = extractRoles(claims);
 

@@ -23,7 +23,13 @@ spring:
         #     - StripPrefix=1
 
 jwt:
-  secret: 4Z^XrroxR@dWxqf$mTTKwW$!@#qGr4P
+  secret: 4Z^XrroxR@dWxqf$mTTKwW$!@#qGr4PL
+
+api:
+  keys:
+    validApiKeys:
+      - "MY_SERVICE_1_SECRET_API_KEY_12345" # Chave para o Serviço 1
+      - "ANOTHER_SERVICE_API_KEY_67890"    # Chave para o Serviço 2
 
 logging:
   level:
