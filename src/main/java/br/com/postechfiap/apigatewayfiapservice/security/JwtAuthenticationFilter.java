@@ -19,13 +19,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Filtro JWT customizado para o API Gateway.
- * Responsável por interceptar requisições, validar o token JWT
- * e injetar informações do usuário nos headers para serviços downstream.
- */
 @Component
-@Slf4j // Anotação do Lombok para criar um logger
+@Slf4j
 public class JwtAuthenticationFilter implements WebFilter {
 
     private static final String AUTHORIZATION_HEADER = "Authorization";
@@ -33,11 +28,8 @@ public class JwtAuthenticationFilter implements WebFilter {
     private static final int BEARER_PREFIX_LENGTH = BEARER_PREFIX.length();
 
     private final SecretKey jwtSecretKey;
-    private final JwtProperties jwtProperties; // Injetando as propriedades JWT
 
-    // Construtor para injetar as propriedades JWT e inicializar a chave secreta.
     public JwtAuthenticationFilter(JwtProperties jwtProperties) {
-        this.jwtProperties = jwtProperties;
         this.jwtSecretKey = Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8));
     }
 
@@ -46,20 +38,17 @@ public class JwtAuthenticationFilter implements WebFilter {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
 
-        // 1. Verificar se a requisição já foi autenticada por API Key
         Boolean authenticatedByApiKey = exchange.getAttribute(ApiAuthenticationFilter.API_KEY_AUTHENTICATED_ATTRIBUTE);
         if (Boolean.TRUE.equals(authenticatedByApiKey)) {
             log.debug("Requisição para {} já autenticada por API Key. Pulando validação JWT.", path);
             return chain.filter(exchange);
         }
 
-        // 2. Verificar se a rota é pública (não requer JWT)
-        if (isPublicRoute(path)) {
+        if (isPublicRoute(path, request)) {
             log.debug("Rota pública: {}. Pulando validação JWT.", path);
             return chain.filter(exchange);
         }
 
-        // 3. Se não foi autenticada por API Key e não é pública, tenta autenticar com JWT
         String authorizationHeader = request.getHeaders().getFirst(AUTHORIZATION_HEADER);
 
         if (authorizationHeader == null || !authorizationHeader.startsWith(BEARER_PREFIX)) {
@@ -69,28 +58,24 @@ public class JwtAuthenticationFilter implements WebFilter {
 
         String token = authorizationHeader.substring(BEARER_PREFIX_LENGTH);
 
-        // 4. Parsear e Validar o JWT
         try {
             Claims claims = Jwts.parser()
-                    .verifyWith(jwtSecretKey) // Use verifyWith para a chave secreta
-                    .build() // Constrói o parser
+                    .verifyWith(jwtSecretKey)
+                    .build()
                     .parseSignedClaims(token)
-                    .getPayload(); // Analisa os claims do token assinado
+                    .getPayload();
 
-            // 5. Extrair informações do token e adicionar aos headers da requisição interna
-            String userId = claims.getSubject(); // O 'sub' claim é geralmente o ID do usuário
+            String userId = claims.getSubject();
             List<String> roles = extractRoles(claims);
 
-            log.debug("Valid JWT for User ID: '{}', Roles: '{}' on path: {}", userId, String.join(",", roles), path);
+            log.debug("JWT valido para o User ID: '{}', Roles: '{}' no caminho: {}", userId, String.join(",", roles), path);
 
             exchange.getRequest()
                     .mutate()
                     .header("X-User-Id", userId)
-                    .header("X-User-Roles", String.join(",", roles)) // Ex: "ROLE_TEACHER,ROLE_ADMIN"
-                    // Você pode adicionar mais claims do JWT como headers se necessário (ex: X-User-Email, X-Tenant-Id)
+                    .header("X-User-Roles", String.join(",", roles))
                     .build();
 
-            // 5. Continuar o processamento da requisição
             return chain.filter(exchange);
 
         } catch (SignatureException e) {
@@ -137,9 +122,9 @@ public class JwtAuthenticationFilter implements WebFilter {
      * Verifica se a rota é pública e não exige autenticação.
      * Pode ser expandido para ler de uma configuração externa para maior flexibilidade.
      */
-    private boolean isPublicRoute(String path) {
+    private boolean isPublicRoute(String path, ServerHttpRequest request) {
         // Rotas do Auth Service que precisam ser acessíveis para login/registro
-        if (path.startsWith("/api/auth/login") || path.startsWith("/api/auth/register")) {
+        if ((path.startsWith("/api/auth/users") || path.startsWith("/api/auth/users/login") ) && request.getMethod().matches("POST")) {
             return true;
         }
         // Endpoint de health check ou de teste do próprio gateway
@@ -154,19 +139,17 @@ public class JwtAuthenticationFilter implements WebFilter {
      * Tenta extrair as roles do JWT Claims, lidando com diferentes formatos.
      */
     private List<String> extractRoles(Claims claims) {
-        // Tenta obter 'roles' como uma List<String>
-        List<String> roles = claims.get("roles", List.class);
-        if (roles != null) {
-            return roles;
-        }
 
-        // Se não for List<String>, tenta obter como um único String separado por vírgula
         String rolesString = claims.get("roles", String.class);
         if (rolesString != null && !rolesString.isEmpty()) {
             return List.of(rolesString.split(","));
         }
 
-        // Se 'roles' não existir ou não estiver em formato reconhecido, retorna lista vazia
+        List<String> roles = claims.get("roles", List.class);
+        if (roles != null) {
+            return roles;
+        }
+
         return Collections.emptyList();
     }
 

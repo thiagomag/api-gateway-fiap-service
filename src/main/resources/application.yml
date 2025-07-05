@@ -6,30 +6,31 @@ spring:
     name: api-gateway-fiap-service
   cloud:
     gateway:
-      routes:
-        - id: auth_service_route
-          uri: http://localhost:8081
-          predicates:
-            - Path=/api/auth/**
-          filters:
-            - StripPrefix=1
+      server:
+        webflux:
+          routes:
+            - id: auth_service_route
+              uri: http://localhost:8081
+              predicates:
+                        - Path=/api/auth/**
+              filters:
+                        - RewritePath=/api/auth/(?<remaining>.*), /${remaining}
 
-        # --- Adicione aqui outras rotas para seus microsservi�os ---
-        # - id: assessment_management_service_route
-        #   uri: http://localhost:8082
-        #   predicates:
-        #     - Path=/api/assessments/**
-        #   filters:
-        #     - StripPrefix=1
+            - id: notificacao_service_route
+              uri: http://localhost:8082
+              predicates:
+                        - Path=/api/notificacao/**
+              filters:
+                        - RewritePath=/api/notificacao/(?<remaining>.*), /${remaining}
 
 jwt:
-  secret: 4Z^XrroxR@dWxqf$mTTKwW$!@#qGr4PL
+  secret: 4Z^XrroxR@dWxqf$mTTKwW$!@#qGr4PT
 
 api:
   keys:
     validApiKeys:
-      - "MY_SERVICE_1_SECRET_API_KEY_12345" # Chave para o Serviço 1
-      - "ANOTHER_SERVICE_API_KEY_67890"    # Chave para o Serviço 2
+      - RXN0YSDDqSBhIGFwaS1rZXkgZG8gY2FkYXN0cm8tdXN1YXJpb3Mtc2VydmljZQ==
+      - RXN0YSDDqSBhIGFwaS1rZXkgZG8gYXR1dGVudGljYcOnw6NvLXNlcnZpY2U=
 
 logging:
   level:
