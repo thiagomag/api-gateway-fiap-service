@@ -12,16 +12,15 @@ spring:
             - id: auth_service_route
               uri: ${AUTH_SERVICE_PATH:http://localhost:8081}
               predicates:
-                        - Path=/api/auth/**
+                - Path=/api/auth/**
               filters:
-                        - RewritePath=/api/auth/(?<remaining>.*), /${remaining}
-
+                - RewritePath=/api/auth/(?<remaining>.*), /${remaining}
             - id: notificacao_service_route
               uri: ${NOTIFICACAO_SERVICE_PATH:http://localhost:8083}
               predicates:
-                        - Path=/api/notificacao/**
+                - Path=/api/notificacao/**
               filters:
-                        - RewritePath=/api/notificacao/(?<remaining>.*), /${remaining}
+                - RewritePath=/api/notificacao/(?<remaining>.*), /${remaining}
             - id: cadastro_medicamentos_service_route
               uri: ${CADASTRO_MEDICAMENTOS_SERVICE_PATH:http://localhost:8082}
               predicates:
