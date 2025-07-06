@@ -25,7 +25,7 @@ spring:
             - id: cadastro_medicamentos_service_route
               uri: ${CADASTRO_MEDICAMENTOS_SERVICE_PATH:http://localhost:8082}
               predicates:
-                - Path=/api/notificacao/**
+                - Path=/api/medicamento/**
               filters:
                 - RewritePath=/api/medicamentos/(?<remaining>.*), /${remaining}
 
