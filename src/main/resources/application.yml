@@ -27,7 +27,7 @@ spring:
               predicates:
                 - Path=/api/medicamento/**
               filters:
-                - RewritePath=/api/medicamentos/(?<remaining>.*), /${remaining}
+                - RewritePath=/api/medicamento/(?<remaining>.*), /${remaining}
 
 jwt:
   secret: 4Z^XrroxR@dWxqf$mTTKwW$!@#qGr4PT
