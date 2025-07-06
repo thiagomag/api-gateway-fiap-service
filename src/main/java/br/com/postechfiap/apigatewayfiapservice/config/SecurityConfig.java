@@ -26,20 +26,11 @@ public class SecurityConfig {
         http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
-                        // Permite acesso a rotas públicas (login, registro, health checks, Swagger)
-                        // Estas rotas não precisam de API Key nem JWT
-                        .pathMatchers("/api/auth/login", "/api/auth/register", "/hello-gateway", "/actuator/**", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
-                        // Permite acesso a rotas internas e do serviço de autenticação para que os filtros possam processá-las
-                        // O ApiAuthenticationFilter e o JwtAuthenticationFilter decidirão a autenticação
-                        .pathMatchers("/api/internal/**", "/api/auth/**").permitAll() // <-- Importante: permita para que os filtros customizados atuem
-                        // Todas as outras requisições (não públicas e não tratadas pelos pathMatchers acima) exigem autenticação
+                        .pathMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
+                        .pathMatchers("/api/notificacao/**", "/api/auth/**").permitAll()
                         .anyExchange().authenticated()
                 )
-                // Adiciona o filtro de API Key ANTES do filtro JWT
-                // Ele tentará autenticar primeiro. Se conseguir, marcará a requisição.
                 .addFilterAt(apiAuthenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION)
-                // Adiciona o filtro JWT DEPOIS do filtro de API Key
-                // Ele verificará se a requisição já foi autenticada por API Key antes de tentar validar o JWT.
                 .addFilterAfter(jwtAuthenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION);
 
         return http.build();

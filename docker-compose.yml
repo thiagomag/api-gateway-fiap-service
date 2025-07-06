@@ -1,0 +1,18 @@
+
+services:
+  api-gateway-fiap-service:
+    image: thiagomag/api-gateway-fiap-service:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: api-gateway-fiap-service
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+
+volumes:
+  postgres_data:
+
+networks:
+  app-network:
