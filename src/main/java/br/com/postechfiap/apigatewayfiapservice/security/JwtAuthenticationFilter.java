@@ -124,7 +124,7 @@ public class JwtAuthenticationFilter implements WebFilter {
         return path.startsWith("/v3/api-docs") || path.startsWith("/swagger-ui");
     }
 
-
+    @SuppressWarnings("unchecked")
     private List<String> extractRoles(Claims claims) {
 
         String rolesString = claims.get("roles", String.class);
