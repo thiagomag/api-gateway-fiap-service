@@ -30,20 +30,9 @@ public class ApiAuthenticationFilter implements WebFilter {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
 
-        boolean isInternalPath = path.startsWith("/api/internal/");
-        boolean isAuthServicePath = path.startsWith("/api/auth/"); // Adicionado para o auth_service
-
-        if (!isInternalPath && !isAuthServicePath) {
-            return chain.filter(exchange);
-        }
-
         Optional<String> apiKeyHeader = Optional.ofNullable(request.getHeaders().getFirst(API_KEY_HEADER));
 
         if (apiKeyHeader.isEmpty()) {
-            if (isInternalPath) {
-                log.warn("Tentativa de acesso a rota interna protegida sem API Key: {}", path);
-                return onError(exchange, "API Key is missing for internal access.", HttpStatus.UNAUTHORIZED);
-            }
             return chain.filter(exchange);
         }
 
