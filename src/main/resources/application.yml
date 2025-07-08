@@ -15,18 +15,24 @@ spring:
                 - Path=/api/auth/**
               filters:
                 - RewritePath=/api/auth/(?<remaining>.*), /${remaining}
-            - id: notificacao_service_route
-              uri: ${NOTIFICACAO_SERVICE_PATH:http://localhost:8083}
-              predicates:
-                - Path=/api/notificacao/**
-              filters:
-                - RewritePath=/api/notificacao/(?<remaining>.*), /${remaining}
             - id: cadastro_medicamentos_service_route
               uri: ${CADASTRO_MEDICAMENTOS_SERVICE_PATH:http://localhost:8082}
               predicates:
                 - Path=/api/medicamento/**
               filters:
                 - RewritePath=/api/medicamento/(?<remaining>.*), /${remaining}
+            - id: notificacao_service_route
+              uri: ${NOTIFICACAO_SERVICE_PATH:http://localhost:8083}
+              predicates:
+                - Path=/api/notificacao/**
+              filters:
+                - RewritePath=/api/notificacao/(?<remaining>.*), /${remaining}
+            - id: fornecedor_service_route
+              uri: ${FORNECEDOR_SERVICE_PATH:http://localhost:8084}
+              predicates:
+                - Path=/api/fornecedor/**
+              filters:
+                - RewritePath=/api/fornecedor/(?<remaining>.*), /${remaining}
 
 jwt:
   secret: 4Z^XrroxR@dWxqf$mTTKwW$!@#qGr4PT

@@ -121,7 +121,7 @@ public class JwtAuthenticationFilter implements WebFilter {
         if ((path.startsWith("/api/auth/users") || path.startsWith("/api/auth/users/login") ) && request.getMethod().matches("POST")) {
             return true;
         }
-        return path.startsWith("/v3/api-docs") || path.startsWith("/swagger-ui");
+        return path.startsWith("/v3/api-docs") || path.startsWith("/swagger-ui") || path.startsWith("/api/swagger-ui.html");
     }
 
     @SuppressWarnings("unchecked")
