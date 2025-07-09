@@ -27,7 +27,7 @@ public class SecurityConfig {
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
-                        .pathMatchers("/api/notificacao/**", "/api/auth/**", "/api/medicamento/**", "/api/fornecedor").permitAll()
+                        .pathMatchers("/api/notificacao/**", "/api/auth/**", "/api/medicamento/**", "/api/fornecedor/**").permitAll()
                         .anyExchange().authenticated()
                 )
                 .addFilterAt(apiAuthenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION)
