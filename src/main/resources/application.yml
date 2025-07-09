@@ -40,8 +40,10 @@ jwt:
 api:
   keys:
     validApiKeys:
-      - RXN0YSDDqSBhIGFwaS1rZXkgZG8gY2FkYXN0cm8tdXN1YXJpb3Mtc2VydmljZQ==
-      - RXN0YSDDqSBhIGFwaS1rZXkgZG8gYXR1dGVudGljYcOnw6NvLXNlcnZpY2U=
+      - RXN0YSDDqSBhIGFwaS1rZXkgZG8gY2FkYXN0cm8tdXN1YXJpb3Mtc2VydmljZQ== # cadastro-usuarios-service
+      - RXN0YSDDqSBhIGFwaS1rZXkgZG8gbm90aWZpY2FjYW8tc2VydmljZQ== # notifcacao-service
+      - RXN0YSDDqSBhIGFwaS1rZXkgZG8gbWVkaWNhbWVudG9zLXNlcnZpY2U= # medicamentos-service
+      - RXN0YSDDqSBhIGFwaS1rZXkgZG8gZm9ybmVjZWRvci1zZXJ2aWNl # fornecedor-service
 
 logging:
   level:
