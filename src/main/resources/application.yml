@@ -34,7 +34,7 @@ spring:
               filters:
                 - RewritePath=/api/fornecedor/(?<remaining>.*), /${remaining}
             - id: reposicao_service_route
-              uri: ${REPOSICAO_SERVICE_PATH:http://localhost:8084}
+              uri: ${REPOSICAO_SERVICE_PATH:http://localhost:8085}
               predicates:
                 - Path=/api/reposicao/**
               filters:
