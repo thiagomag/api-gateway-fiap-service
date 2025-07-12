@@ -33,6 +33,12 @@ spring:
                 - Path=/api/fornecedor/**
               filters:
                 - RewritePath=/api/fornecedor/(?<remaining>.*), /${remaining}
+            - id: reposicao_service_route
+              uri: ${REPOSICAO_SERVICE_PATH:http://localhost:8084}
+              predicates:
+                - Path=/api/reposicao/**
+              filters:
+                - RewritePath=/api/reposicao/(?<remaining>.*), /${remaining}
 
 jwt:
   secret: 4Z^XrroxR@dWxqf$mTTKwW$!@#qGr4PT
