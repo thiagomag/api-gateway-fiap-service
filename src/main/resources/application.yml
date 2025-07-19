@@ -39,9 +39,11 @@ spring:
                 - Path=/api/reposicao/**
               filters:
                 - RewritePath=/api/reposicao/(?<remaining>.*), /${remaining}
-
-jwt:
-  secret: 4Z^XrroxR@dWxqf$mTTKwW$!@#qGr4PT
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${AUTH_SERVICE_PATH:http://localhost:8081}/.well-known/jwks.json
 
 api:
   keys:

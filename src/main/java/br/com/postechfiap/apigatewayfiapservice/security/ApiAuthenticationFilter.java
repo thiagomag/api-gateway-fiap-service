@@ -22,6 +22,8 @@ public class ApiAuthenticationFilter implements WebFilter {
 
     private static final String API_KEY_HEADER = "X-API-Key";
     public static final String API_KEY_AUTHENTICATED_ATTRIBUTE = "api_key_authenticated";
+    private static final String AUTHENTICATED_ROLES_HEADER = "X-Authenticated-Roles";
+    private static final String ADMIN_ROLE = "ROLE_ADMINISTRATOR";
 
     private final ApiKeysProperties apiKeysProperties;
 
@@ -39,9 +41,12 @@ public class ApiAuthenticationFilter implements WebFilter {
         String providedApiKey = apiKeyHeader.get();
 
         if (apiKeysProperties.getValidApiKeys().contains(providedApiKey)) {
-            log.debug("API Key válida para rota: {}", path);
+            log.debug("API Key válida para rota: {}. Injetando perfil de administrador.", path);
             exchange.getAttributes().put(API_KEY_AUTHENTICATED_ATTRIBUTE, true);
-            return chain.filter(exchange);
+            ServerHttpRequest mutatedRequest = request.mutate()
+                    .header(AUTHENTICATED_ROLES_HEADER, ADMIN_ROLE)
+                    .build();
+            return chain.filter(exchange.mutate().request(mutatedRequest).build());
         } else {
             log.warn("API Key inválida para rota: {}. Chave fornecida: {}", path, providedApiKey);
             return onError(exchange, "Invalid API Key.", HttpStatus.UNAUTHORIZED);
