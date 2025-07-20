@@ -70,13 +70,12 @@ public class JwtAuthenticationFilter implements WebFilter {
 
             log.debug("JWT valido para o User ID: '{}', Roles: '{}' no caminho: {}", userId, String.join(",", roles), path);
 
-            exchange.getRequest()
-                    .mutate()
+            ServerHttpRequest mutatedRequest = request.mutate()
                     .header("X-User-Id", userId)
                     .header("X-User-Roles", String.join(",", roles))
                     .build();
 
-            return chain.filter(exchange);
+            return chain.filter(exchange.mutate().request(mutatedRequest).build());
 
         } catch (SignatureException e) {
             log.warn("Falha na validação da assinatura JWT para o caminho '{}'. Token: {}. Erro: {}", path, truncateToken(token), e.getMessage());
